@@ -1,34 +1,41 @@
-name: Android Build
+name: Android Build - Debug APK
 
 on:
   push:
-    branches: []
+    branches: [ dev, main, master ]
   pull_request:
-    branches: []
+    branches: [ dev, main, master ]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Install ninja-build
-      run: sudo apt-get install -y ninja-build
+    - name: Install ninja-build and cmake
+      run: sudo apt-get update && sudo apt-get install -y ninja-build cmake
+
     - name: Clone repository
       uses: actions/checkout@v4
-    - name: Clone submodules
-      run: git submodule update --init --recursive --remote
+      with:
+        submodules: recursive
+
     - name: Set up JDK 21
       uses: actions/setup-java@v4
       with:
         java-version: "21"
-        distribution: "jetbrains"
+        distribution: "temurin"
         cache: gradle
+
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+
     - name: Build debug APK with Gradle
-      run: ./gradlew app:packageDebug
+      run: ./gradlew app:assembleDebug --stacktrace
+
     - name: Upload debug APK artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Auxio_Canary
-        path: ./app/build/outputs/apk/debug/app-debug.apk
+        name: Paimusic-debug
+        path: ./app/build/outputs/apk/debug/*.apk
+        if-no-files-found: error
