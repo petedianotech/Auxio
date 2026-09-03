@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="info_app_name" translatable="false">Paimusic Debug</string>
+    <string name="info_app_name" translatable="false">Paimusic</string>
     <string name="pkg_authority_cover">org.paimusic.app.debug.image.CoverProvider</string>
 </resources>
