@@ -269,13 +269,8 @@ constructor(
         showOuter.put(Outer.Settings)
     }
 
-    fun showAbout() {
-        showOuter.put(Outer.About)
-    }
 }
 
 sealed interface Outer {
     data object Settings : Outer
-
-    data object About : Outer
 }
