@@ -72,10 +72,8 @@ import org.oxycblt.musikr.playlist.m3u.M3U
 import timber.log.Timber as L
 
 /**
- * The starting [SelectionFragment] of Auxio. Shows the user's music library and enables navigation
+ * The starting [SelectionFragment] of Paimusic. Shows the user's music library and enables navigation
  * to other views.
- *
- * @author Alexander Capehart (OxygenCobalt)
  */
 @AndroidEntryPoint
 class HomeFragment : SelectionFragment<FragmentHomeBinding>() {
@@ -133,9 +131,6 @@ class HomeFragment : SelectionFragment<FragmentHomeBinding>() {
         }
 
         binding.homePager.apply {
-            // Update HomeViewModel whenever the user swipes through the ViewPager.
-            // This would be implemented in HomeFragment itself, but OnPageChangeCallback
-            // is an object for some reason.
             registerOnPageChangeCallback(
                 object : ViewPager2.OnPageChangeCallback() {
                     override fun onPageSelected(position: Int) {
@@ -144,22 +139,13 @@ class HomeFragment : SelectionFragment<FragmentHomeBinding>() {
                 }
             )
 
-            // ViewPager2 will nominally consume window insets, which will then break the window
-            // insets applied to the indexing view before API 30. Fix this by overriding the
-            // listener with a non-consuming listener.
             setOnApplyWindowInsetsListener { _, insets -> insets }
 
-            // We know that there will only be a fixed amount of tabs, so we manually set this
-            // limit to the maximum amount possible. This will prevent the tab ripple from
-            // bugging out due to dynamically inflating each fragment, at the cost of slower
-            // debug UI performance.
             offscreenPageLimit = Tab.MAX_SEQUENCE_IDX + 1
 
             dampen()
         }
 
-        // Further initialization must be done in the function that also handles
-        // re-creating the ViewPager.
         setupPager(binding)
 
         // --- VIEWMODEL SETUP ---
@@ -187,7 +173,7 @@ class HomeFragment : SelectionFragment<FragmentHomeBinding>() {
         }
 
         return when (item.itemId) {
-            // Handle main actions (Search, Settings, About)
+            // Handle main actions (Search, Settings)
             R.id.action_search -> {
                 L.d("Navigating to search")
                 findNavController().navigateSafe(HomeFragmentDirections.search())
@@ -198,15 +184,9 @@ class HomeFragment : SelectionFragment<FragmentHomeBinding>() {
                 homeModel.showSettings()
                 true
             }
-            R.id.action_about -> {
-                L.d("Navigating to about")
-                homeModel.showAbout()
-                true
-            }
 
             // Handle sort menu
             R.id.action_sort -> {
-                // Junk click event when opening the menu
                 val directions =
                     when (homeModel.currentTabType.value) {
                         MusicType.SONGS -> HomeFragmentDirections.sortSongs()
@@ -231,8 +211,6 @@ class HomeFragment : SelectionFragment<FragmentHomeBinding>() {
 
         val toolbarParams = binding.homeToolbar.layoutParams as AppBarLayout.LayoutParams
         if (homeModel.currentTabTypes.size == 1) {
-            // A single tab makes the tab layout redundant, hide it and disable the collapsing
-            // behavior.
             L.d("Single tab shown, disabling TabLayout")
             binding.homeTabs.isVisible = false
             binding.homeAppbar.setExpanded(true, false)
@@ -244,7 +222,6 @@ class HomeFragment : SelectionFragment<FragmentHomeBinding>() {
                     AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
         }
 
-        // Set up the mapping between the ViewPager and TabLayout.
         TabLayoutMediator(
                 binding.homeTabs,
                 binding.homePager,
@@ -256,9 +233,6 @@ class HomeFragment : SelectionFragment<FragmentHomeBinding>() {
     private fun updateCurrentTab(tabType: MusicType) {
         val binding = requireBinding()
 
-        // Update the scrolling view in AppBarLayout to align with the current tab's
-        // scrolling state. This prevents the lift state from being confused as one
-        // goes between different tabs.
         binding.homeAppbar.liftOnScrollTargetViewId =
             when (tabType) {
                 MusicType.SONGS -> R.id.home_song_recycler
@@ -273,9 +247,7 @@ class HomeFragment : SelectionFragment<FragmentHomeBinding>() {
         if (recreate == null) return
         val binding = requireBinding()
         L.d("Recreating ViewPager")
-        // Move back to position zero, as there must be a tab there.
         binding.homePager.currentItem = 0
-        // Make sure tabs are set up to also follow the new ViewPager configuration.
         setupPager(binding)
         homeModel.recreateTabs.consume()
     }
@@ -453,41 +425,23 @@ class HomeFragment : SelectionFragment<FragmentHomeBinding>() {
     }
 
     private fun updateSelection(selected: List<Music>) {
-        val binding = requireBinding()
-        if (selected.isNotEmpty()) {
-            binding.homeSelectionToolbar.title = getString(R.string.fmt_selected, selected.size)
-            if (binding.homeToolbar.setVisible(R.id.home_selection_toolbar)) {
-                // New selection started, show the AppBarLayout to indicate the new state.
-                L.d("Significant selection occurred, expanding AppBar")
-                binding.homeAppbar.expandWithScrollingRecycler()
-            }
-        } else {
-            binding.homeToolbar.setVisible(R.id.home_normal_toolbar)
+        updateSelectionToolbar(selected.isNotEmpty())
+    }
+}
+
+private class HomePagerAdapter(
+    private val tabs: List<MusicType>,
+    fragmentManager: FragmentManager,
+    lifecycleOwner: LifecycleOwner,
+) : FragmentStateAdapter(fragmentManager, lifecycleOwner.lifecycle) {
+    override fun getItemCount() = tabs.size
+
+    override fun createFragment(position: Int): Fragment =
+        when (tabs[position]) {
+            MusicType.SONGS -> SongListFragment()
+            MusicType.ALBUMS -> AlbumListFragment()
+            MusicType.ARTISTS -> ArtistListFragment()
+            MusicType.GENRES -> GenreListFragment()
+            MusicType.PLAYLISTS -> PlaylistListFragment()
         }
-    }
-
-    /**
-     * [FragmentStateAdapter] implementation for the [HomeFragment]'s [ViewPager2] instance.
-     *
-     * @param tabs The current tab configuration. This will define the [Fragment]s created.
-     * @param fragmentManager The [FragmentManager] required by [FragmentStateAdapter].
-     * @param lifecycleOwner The [LifecycleOwner], whose Lifecycle is required by
-     *   [FragmentStateAdapter].
-     */
-    private class HomePagerAdapter(
-        private val tabs: List<MusicType>,
-        fragmentManager: FragmentManager,
-        lifecycleOwner: LifecycleOwner,
-    ) : FragmentStateAdapter(fragmentManager, lifecycleOwner.lifecycle) {
-        override fun getItemCount() = tabs.size
-
-        override fun createFragment(position: Int): Fragment =
-            when (tabs[position]) {
-                MusicType.SONGS -> SongListFragment()
-                MusicType.ALBUMS -> AlbumListFragment()
-                MusicType.ARTISTS -> ArtistListFragment()
-                MusicType.GENRES -> GenreListFragment()
-                MusicType.PLAYLISTS -> PlaylistListFragment()
-            }
-    }
 }
