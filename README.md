@@ -1,61 +1,53 @@
 <p align="center"><img src="fastlane/metadata/android/en-US/images/icon.png" width="150"></p>
 <h1 align="center"><b>Paimusic</b></h1>
-<h4 align="center">A simple, rational music player for Android (based on Auxio).</h4>
+<h4 align="center">Your local music player for Android</h4>
 
 <p align="center">
-    <img alt="Latest Version" src="https://img.shields.io/static/v1?label=tag&message=v1.0.0&color=64B5F6&style=flat">
+    <img alt="Latest Version" src="https://img.shields.io/static/v1?label=tag&message=v1.1.0&color=64B5F6&style=flat">
     <img alt="License" src="https://img.shields.io/badge/license-GPL%20v3-2B6DBE.svg?style=flat">
     <img alt="Minimum SDK Version" src="https://img.shields.io/badge/API-24%2B-1450A8?style=flat">
 </p>
 
-## About
+## Paimusic
 
-**Paimusic** is a local music player forked and continued from [Auxio](https://github.com/OxygenCobalt/Auxio). It keeps the same clean, rational design and modern Media3-based playback while being rebranded and prepared for further improvements.
+**Paimusic** is a fast, private, offline-first music player. It is based on the excellent Auxio codebase and is being developed further as a full-featured player with a cleaner identity.
 
-It plays music. Fast UI, excellent library support, gapless playback, ReplayGain, Android Auto, widgets, and complete offline privacy.
+- No "About" screen clutter — the app is focused on music
+- Always displays as **Paimusic** (no Debug branding)
+- Application ID: `org.paimusic.app`
 
-**Original project:** [OxygenCobalt/Auxio](https://github.com/OxygenCobalt/Auxio) by Alexander Capehart.
-
-## Features
-
-- Playback based on Media3 ExoPlayer
-- Snappy Material Design 3 UI
-- Opinionated UX focused on ease of use
-- Customizable behavior
-- Support for disc numbers, multiple artists, release types, precise dates, sort tags, and more
-- Advanced artist system
-- SD Card-aware folder management
-- Reliable playlists
-- Playback state persistence
-- Android Auto support
-- Automatic gapless playback
-- Full ReplayGain support
+### Current strengths
+- Media3 / ExoPlayer engine
+- Material 3 UI, edge-to-edge
+- Gapless playback + full ReplayGain
 - External equalizer support
-- Edge-to-edge, embedded covers, search, headset autoplay, adaptive widgets
-- Completely private and offline
+- Folders, playlists, search, widgets, Android Auto
+- Completely offline & private
 
-## Building / CI
+### Roadmap (Poweramp-inspired)
+Planned enhancements to bring more of the power users expect from high-end players like Poweramp:
+- Stronger built-in EQ / tone controls and presets
+- Crossfade & advanced gapless options
+- Lyrics support
+- More playback / library customization
+- Improved visualizations and player UI polish
 
-A GitHub Actions workflow (`.github/workflows/android.yml`) automatically builds a **debug APK** on every push to `dev`/`main` and uploads it as an artifact named `Paimusic-debug`.
+## Building
 
-You can also trigger it manually via the Actions tab.
+GitHub Actions builds a debug APK on every push to `dev` and uploads the artifact **Paimusic-debug**.
 
-### Local build requirements
-
-- `cmake` and `ninja-build`
-- JDK 21
-- Submodules: `git clone --recurse-submodules`
+Local requirements: `cmake`, `ninja-build`, JDK 21, submodules.
 
 ```bash
+git clone --recurse-submodules https://github.com/petedianotech/Auxio.git
+cd Auxio
 ./gradlew app:assembleDebug
 ```
 
-The debug APK will be at `app/build/outputs/apk/debug/`.
-
 ## License
 
-Same as the original Auxio project: GNU GPLv3.
+GNU GPLv3 (same as the original Auxio project).
 
 ---
 
-*Paimusic is a community continuation / rebrand of Auxio for further development under the Paimusic name.*
+Maintained by [petedianotech](https://github.com/petedianotech). Original Auxio by Alexander Capehart / OxygenCobalt.
