@@ -18,9 +18,4 @@
         android:id="@+id/action_settings"
         android:title="@string/set_root_title"
         app:showAsAction="never" />
-
-    <item
-        android:id="@+id/action_about"
-        android:title="@string/lbl_about"
-        app:showAsAction="never" />
 </menu>
