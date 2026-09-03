@@ -13,9 +13,6 @@
         <action
             android:id="@+id/preferences"
             app:destination="@id/root_preferences_fragment" />
-        <action
-            android:id="@+id/about"
-            app:destination="@id/about_fragment" />
     </fragment>
     <fragment
         android:id="@+id/root_preferences_fragment"
@@ -99,10 +96,4 @@
         android:name="org.oxycblt.auxio.music.interpret.SeparatorsDialog"
         android:label="separators_dialog"
         tools:layout="@layout/dialog_separators" />
-
-    <fragment
-        android:id="@+id/about_fragment"
-        android:name="org.oxycblt.auxio.settings.AboutFragment"
-        android:label="dialog_about"
-        tools:layout="@layout/fragment_about" />
 </navigation>
